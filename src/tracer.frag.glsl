@@ -196,12 +196,12 @@ void main() {
 
 	} else {
 		// #TODO IN0.1: Set your background color here
-		pix_color = vec3(0., 0., 0.);
+		pix_color = vec3(0.420, 0.666, 0.69);
 	}
 
 	gl_FragColor = vec4(pix_color, 1.);
 
-	// vec3 my_color = 2*vec3(0.5, 0, 0);
+	// vec3 my_color = 2.*vec3(0.5, 0, 0);
 	// vec3 my_color = vec3(ray_direction.x, ray_direction.y. 0);
 	// gl_FragColor = vec4(my_color, 1.);
 }
