@@ -178,7 +178,44 @@ const SCENES = [
 		{center: [ 0.0, 1.0, 0.0], radius: 0.5, height: 1.5, axis: [0, 1, 1], material: 'white'},
 		{center: [ 1.5, 1.0, 0.0], radius: 0.5, height: 1.5, axis: [1, 1, 1], material: 'white'},
 	],
-}
+}, 
+{
+	name: "scene_custom", 
+	camera: {position: [39.792, -23.042, 9.922], up: [0.062, 0.344, 0.937], target: [41.165, -13.775, 6.424], fov: 60},
+	 
+	materials: [
+		{
+	name: "default", color: [0.6, 0.6, 0.6], ambient: 0.2, diffuse: 0.8, specular: 0.4, shininess: 2.0, mirror: 0.02},
+	 {
+	name: "grass", color: [0.1, 0.7, 0.01], ambient: 0.2, diffuse: 0.9, specular: 0.3, shininess: 2.0, mirror: 0.02},
+	 {
+	name: "fuzzy", color: [0.3, 0.4, 0.6], ambient: 0.2, diffuse: 0.9, specular: 0.1, shininess: 2.0, mirror: 0.02},
+	 {
+	name: "white_shiny", color: [0.9, 0.9, 0.9], ambient: 0.2, diffuse: 0.9, specular: 0.8, shininess: 8.0, mirror: 0.3},
+	 {
+	name: "black", color: [0.1, 0.1, 0.1], ambient: 0.1, diffuse: 0.5, specular: 0.8, shininess: 1.0, mirror: 0.5}], 
+	lights: [
+		{position: [9.328, 6.822, 2.304], color: [1.0, 0.8, 0.7]},
+	 {position: [-2.817, 12.998, 7.154], color: [1.0, 0.8, 0.7]}], 
+	spheres: [
+		{center: [41.919, -4.389, 0.734], radius: 3.483, material: "default"},
+	 {center: [41.919, -4.334, 4.765], radius: 2.576, material: "default"},
+	 {center: [41.187, -7.779, 5.428], radius: 0.224, material: "default"},
+	 {center: [42.363, -7.751, 5.413], radius: 0.224, material: "default"},
+	 {center: [40.856, -7.717, 4.45], radius: 0.186, material: "default"},
+	 {center: [41.252, -7.704, 4.206], radius: 0.186, material: "default"},
+	 {center: [41.703, -7.701, 4.12], radius: 0.186, material: "default"},
+	 {center: [42.129, -7.703, 4.115], radius: 0.186, material: "default"},
+	 {center: [42.476, -7.714, 4.27], radius: 0.186, material: "default"},
+	 {center: [42.851, -7.729, 4.478], radius: 0.186, material: "default"},
+	 {center: [41.31, -4.088, 7.0], radius: 0.936, material: "default"}], 
+	planes: [
+		{center: [-1.458, -0.555, -3.643], normal: [0.0, 0.0, 1.0], material: "grass"},
+	 {center: [-1.458, -0.555, -3.643], normal: [0.0, 0.0, 1.0], material: "grass"},
+	 {center: [-1.458, -0.555, -3.643], normal: [0.0, 0.0, 1.0], material: "grass"}], 
+	cylinders: [
+		{center: [45.296, -5.983, 2.295], axis: [0.942, 0.04, 0.334], height: 1.977, radius: 0.571, material: "default"},
+	 {center: [38.613, -6.097, 0.687], axis: [0.942, 0.04, 0.334], height: 1.931, radius: 0.558, material: "default"}]}
 ]
 
 SCENES.push({
