@@ -239,16 +239,17 @@ bool ray_cylinder_intersection(
 	vec3 a = cyl.axis;
 	vec3 d = ray_direction;
 	float r = cyl.radius;
+	
+	vec3 q = ray_origin - c;
 
-	vec3 q = o - c;
-	vec3 s = q - a * dot(q, a);
-
-	vec3 square_part = d - a * (dot(d, a));
+	float p1 = dot(d, a) * dot(d, a) - dot(d, d);
+	float p2 = 2. * dot(d, a) * dot(q, a) - 2. * dot(d, q);
+	float p3 = dot(q, a) * dot(q, a) - dot(q, q) + r * r;
 
 	int num_solutions = solve_quadratic(
-		dot(square_part, square_part),
-		2. * dot(square_part, s),
-		dot(s, s) - r*r,
+		p1,
+		p2,
+		p3,
 		// where to store solutions
 		solutions
 	);
