@@ -173,11 +173,48 @@ bool ray_plane_intersection(
 		vec3 plane_normal, float plane_offset, 
 		out float t, out vec3 normal) 
 {
+	/** #TODO RT1.1:
+	The plane is described by its normal vec3(nx, ny, nz) and an offset d.
+	Point p belongs to the plane iff `dot(normal, p) = d`.
+
+	- compute the ray's ntersection of the plane
+	- if ray and plane are parallel there is no intersection
+	- otherwise compute intersection data and store it in `normal`, and `t` (distance along ray until intersection).
+	- return whether there is an intersection in front of the viewer (t > 0)
+	*/
+
+	// d = d 
+	// nt = plane_normal
+	// o = ray_origin
+	// d-> = ray_direction
+
 	// can use the plane center if you need it
 	vec3 plane_center = plane_normal * plane_offset;
+	float d = dot(plane_normal, plane_center);
 	t = MAX_RANGE + 10.;
-	//normal = ...;
-	return false;
+	// if not parallel, compute t
+	if (dot(plane_normal, ray_direction) != 0.){
+		t = (d - dot(plane_normal, ray_origin)) / dot(plane_normal, ray_direction);
+	}
+	
+	// cos > 0 when angle < 90degrees
+	float direction = dot(plane_normal, ray_direction);
+	direction = -direction / abs(direction); // normalize but keep sign (also need to invert sign for correct normal cuz ray_direction is going towards the plane and the normal away from the plane)
+	normal = direction * plane_normal;
+	return t > 0.;
+}
+
+
+bool check_cylinder_height(vec3 ray_origin, vec3 ray_direction, float t, vec3 c, float h, float r)
+{
+		vec3 intersection_point = ray_origin + ray_direction * t;
+		vec3 center_to_intersection = intersection_point - c;
+		// float h = cyl.height;
+		// simple pythagorean theorem (both values are squared)
+		float max_dist_from_center = (h / 2.) * (h / 2.) + r * r;
+		float dist_from_center = dot(center_to_intersection, center_to_intersection);
+
+		return dist_from_center <= max_dist_from_center;
 }
 
 /*
@@ -188,10 +225,61 @@ bool ray_cylinder_intersection(
 		Cylinder cyl,
 		out float t, out vec3 normal) 
 {
-	vec3 intersection_point;
-	t = MAX_RANGE + 10.;
+	/** #TODO RT1.2.2: 
+	- compute the ray's first valid intersection with the cylinder
+		(valid means in front of the viewer: t > 0)
+	- store intersection point in `intersection_point`
+	- store ray parameter in `t`
+	- store normal at intersection_point in `normal`.
+	- return whether there is an intersection with t > 0
+	*/
 
-	return false;
+	t = MAX_RANGE + 10.;
+	vec2 solutions; // solutions will be stored here
+
+	vec3 o = ray_origin;
+	vec3 c = cyl.center;
+	vec3 a = cyl.axis;
+	vec3 d = ray_direction;
+	float r = cyl.radius;
+	
+	vec3 q = ray_origin - c;
+
+	float p1 = dot(d, a) * dot(d, a) - dot(d, d);
+	float p2 = 2. * dot(d, a) * dot(q, a) - 2. * dot(d, q);
+	float p3 = dot(q, a) * dot(q, a) - dot(q, q) + r * r;
+
+	int num_solutions = solve_quadratic(
+		p1,
+		p2,
+		p3,
+		// where to store solutions
+		solutions
+	);
+
+	if (num_solutions >= 1 && solutions[0] > 0. &&
+	check_cylinder_height(ray_origin, ray_direction, solutions[0], c, cyl.height, r)) {
+		t = solutions[0];
+	}
+	
+	if (num_solutions >= 2 && solutions[1] > 0. && solutions[1] < t &&
+	check_cylinder_height(ray_origin, ray_direction, solutions[1], c, cyl.height, r)) {
+		t = solutions[1];
+	}
+
+	if (t > 0. && t < MAX_RANGE) {
+		vec3 intersection_point = ray_origin + ray_direction * t;
+		normal = normalize(intersection_point - c - dot(intersection_point - c, a) * a);
+
+		float direction = dot(normal, ray_direction);
+		direction = -direction / abs(direction); // normalize but keep sign (also need to invert sign for correct normal cuz ray_direction is going towards the cylinder and the normal away from the cylinder)
+
+		normal *= direction;
+
+		return true;
+	} else {
+		return false;
+	}
 }
 
 
