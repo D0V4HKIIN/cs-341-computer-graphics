@@ -430,7 +430,7 @@ vec3 lighting(
 	}
 	
 
-	return (intensity_diffuse + intensity_specular) * shadow_exists;
+	return (intensity_diffuse + intensity_specular) * shadow_exists * light.color;
 }
 
 /*
