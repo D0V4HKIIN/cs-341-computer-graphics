@@ -473,19 +473,31 @@ vec3 render_light(vec3 ray_origin, vec3 ray_direction) {
 	*/
 
 	vec3 pix_color = vec3(0.);
+	float reflection_weight = 1.;
+	for(int i_reflection = 0; i_reflection < NUM_REFLECTIONS+1; i_reflection++) {
 
-	float col_distance;
-	vec3 col_normal = vec3(0.);
-	int mat_id = 0;
-	if(ray_intersection(ray_origin, ray_direction, col_distance, col_normal, mat_id)) {
-		Material m = get_material(mat_id);
-		pix_color = light_color_ambient * (m.ambient * m.color);
-
-		#if NUM_LIGHTS != 0
-		for(int i_light = 0; i_light < NUM_LIGHTS; i_light++) {
-			pix_color += lighting(ray_origin + ray_direction * col_distance, col_normal, -1. * ray_direction, lights[i_light], m);
+		float col_distance;
+		vec3 col_normal = vec3(0.);
+		int mat_id = 0;
+		if(ray_intersection(ray_origin, ray_direction, col_distance, col_normal, mat_id)) {
+			Material m = get_material(mat_id);
+			vec3 temp_pix_color = light_color_ambient * (m.ambient * m.color);
+			
+			// ci = lighting
+			// prod(ak) = reflextion_weight
+			// ai = m.mirror
+			#if NUM_LIGHTS != 0
+			for(int i_light = 0; i_light < NUM_LIGHTS; i_light++) {
+				temp_pix_color += lighting(ray_origin + ray_direction * col_distance, col_normal, -1. * ray_direction, lights[i_light], m);
+			}
+			#endif
+			pix_color += (1. - m.mirror) * reflection_weight * temp_pix_color;
+			ray_origin = ray_origin + ray_direction * (col_distance - 1e-1);
+			ray_direction = reflect(ray_direction, col_normal);
+			reflection_weight *= m.mirror;
+		}else{
+			break; // no surface to intersect with
 		}
-		#endif
 	}
 
 	return pix_color;
