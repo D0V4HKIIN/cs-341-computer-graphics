@@ -381,9 +381,10 @@ vec3 lighting(
 	vec3 light_vec = normalize(light.position - object_point);
 	float direction_diffuse = dot(object_normal, light_vec);
 	vec3 intensity_diffuse = vec3(0.);
+	vec3 md = (mat.diffuse * mat.color);
 
 	if (direction_diffuse > 0.) {
-		intensity_diffuse = (mat.diffuse * mat.color) * dot(object_normal, light_vec);
+		intensity_diffuse = md * dot(object_normal, light_vec);
 	}
 
 	/** #TODO RT2.2: 
@@ -393,19 +394,19 @@ vec3 lighting(
 	*/
 
 	vec3 intensity_specular;
-	vec3 md = (mat.specular * mat.color);
+	vec3 ms = (mat.specular * mat.color);
 	#if SHADING_MODE == SHADING_MODE_PHONG
 	vec3 r = reflect(-light_vec, object_normal); // negative cuz light_vec is not incident
 	if (dot(object_normal, light_vec) < 0. || dot(r, direction_to_camera) < 0.) {
 		intensity_specular = vec3(0.);
 	} else {
-		intensity_specular = md * pow(dot(r, direction_to_camera), mat.shininess);
+		intensity_specular = ms * pow(dot(r, direction_to_camera), mat.shininess);
 	}
 	#endif
 
 	#if SHADING_MODE == SHADING_MODE_BLINN_PHONG
 	vec3 h = normalize(light_vec + direction_to_camera); // length(light_vec + direction_to_camera);
-	intensity_specular = md * pow(dot(object_normal, h), mat.shininess);
+	intensity_specular = ms * pow(dot(object_normal, h), mat.shininess);
 	#endif
 
 	// Shadow ray
