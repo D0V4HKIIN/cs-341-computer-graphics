@@ -379,10 +379,10 @@ vec3 lighting(
 	You can use existing methods for `vec3` objects such as `mirror`, `reflect`, `norm`, `dot`, and `normalize`.
 	*/
 	vec3 light_vec = normalize(light.position - object_point);
-	float direction = dot(object_normal, light_vec);
+	float direction_diffuse = dot(object_normal, light_vec);
 	vec3 intensity_diffuse;
 
-	if (direction < 0.) {
+	if (direction_diffuse < 0.) {
 		intensity_diffuse = vec3(0., 0., 0.);
 	} else {
 		intensity_diffuse = (mat.diffuse * mat.color) * light.color * dot(object_normal, light_vec);
@@ -394,14 +394,22 @@ vec3 lighting(
 	- update the lighting accordingly
 	*/
 
-
+	vec3 intensity_specular;
 	#if SHADING_MODE == SHADING_MODE_PHONG
+	vec3 r = reflect(light_vec, object_normal);
+	if (dot(object_normal, light_vec) < 0. && dot(r, direction_to_camera) < 0.) {
+		intensity_specular = vec3(0.,0.,0.);
+	} else {
+		intensity_specular = (mat.specular * mat.color) * light.color * pow(dot(r, normalize(direction_to_camera)), mat.shininess);
+	}
 	#endif
 
 	#if SHADING_MODE == SHADING_MODE_BLINN_PHONG
+	vec3 h = (light_vec + direction_to_camera) / length(light_vec + direction_to_camera);
+	intensity_specular = (mat.specular * mat.color) * light.color * pow(dot(object_normal, h), mat.shininess);
 	#endif
 
-	return intensity_diffuse;
+	return intensity_diffuse + intensity_specular;
 }
 
 /*
