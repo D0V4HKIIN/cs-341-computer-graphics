@@ -415,13 +415,14 @@ vec3 lighting(
 	int mat_id_shadow = 0;
 
 	float shadow_exists = 1.;
+	float float_err_compensation = 1e-3;
 	if (dot(light_vec, object_normal) > 0.) {
 		bool intersection_exist = ray_intersection(object_point, light_vec, col_distance_shadow, col_normal_shadow, mat_id_shadow);
 		if (intersection_exist && col_distance_shadow < length(light.position - object_point)) {
-			if (abs(col_distance_shadow) > 1e-3) {
+			if (abs(col_distance_shadow) > float_err_compensation) {
 				shadow_exists = 0.;
 			} else {
-				vec3 new_intersection = object_point + 1e-3 * light_vec;
+				vec3 new_intersection = object_point + float_err_compensation * light_vec;
 				intersection_exist = ray_intersection(new_intersection, light_vec, col_distance_shadow, col_normal_shadow, mat_id_shadow);
 				if (intersection_exist && col_distance_shadow < length(light.position - object_point)) {
 					shadow_exists = 0.;
