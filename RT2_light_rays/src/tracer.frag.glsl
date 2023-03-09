@@ -383,7 +383,7 @@ vec3 lighting(
 	vec3 intensity_diffuse = vec3(0.);
 
 	if (direction_diffuse > 0.) {
-		intensity_diffuse = (mat.diffuse * mat.color) * light.color * dot(object_normal, light_vec);
+		intensity_diffuse = (mat.diffuse * mat.color) * dot(object_normal, light_vec);
 	}
 
 	/** #TODO RT2.2: 
