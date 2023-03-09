@@ -5,7 +5,7 @@ Task RT 2.1
 You can find detailed derivation in TheoryExercise.pdf
 
 Task RT 2.2
-Implementation simple follows the implicit formula we derived and we also add code to make sure the intersection points fall within the reachable range  of the cylinder.  
+Implementation simple follows the implicit formula we derived and we also add code to make sure the intersection points fall within the reachable range  of the cylinder. The normals are flipped if the ray is in the same direction as the calculated normal.
 
 Work Contribution:
 We all showed up in the exercises and stayed to work together after. The workload was distributed evenly.
