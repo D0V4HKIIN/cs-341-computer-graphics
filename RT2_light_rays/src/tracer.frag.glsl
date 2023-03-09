@@ -378,6 +378,15 @@ vec3 lighting(
 
 	You can use existing methods for `vec3` objects such as `mirror`, `reflect`, `norm`, `dot`, and `normalize`.
 	*/
+	vec3 light_vec = normalize(light.position - object_point);
+	float direction = dot(object_normal, light_vec);
+	vec3 intensity_diffuse;
+
+	if (direction < 0.) {
+		intensity_diffuse = vec3(0., 0., 0.);
+	} else {
+		intensity_diffuse = (mat.diffuse * mat.color) * light.color * dot(object_normal, light_vec);
+	}
 
 	/** #TODO RT2.2: 
 	- shoot a shadow ray from the intersection point to the light
@@ -392,7 +401,7 @@ vec3 lighting(
 	#if SHADING_MODE == SHADING_MODE_BLINN_PHONG
 	#endif
 
-	return mat.color;
+	return intensity_diffuse;
 }
 
 /*
@@ -439,12 +448,12 @@ vec3 render_light(vec3 ray_origin, vec3 ray_direction) {
 	int mat_id = 0;
 	if(ray_intersection(ray_origin, ray_direction, col_distance, col_normal, mat_id)) {
 		Material m = get_material(mat_id);
-		pix_color = m.color;
+		pix_color = light_color_ambient * (m.ambient * m.color);
 
 		#if NUM_LIGHTS != 0
-		// for(int i_light = 0; i_light < NUM_LIGHTS; i_light++) {
-		// // do something for each light lights[i_light]
-		// }
+		for(int i_light = 0; i_light < NUM_LIGHTS; i_light++) {
+			pix_color += lighting(ray_origin + ray_direction * col_distance, col_normal, -1. * ray_direction, lights[i_light], m);
+		}
 		#endif
 	}
 
