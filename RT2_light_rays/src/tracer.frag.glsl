@@ -409,7 +409,29 @@ vec3 lighting(
 	intensity_specular = (mat.specular * mat.color) * light.color * pow(dot(object_normal, h), mat.shininess);
 	#endif
 
-	return intensity_diffuse + intensity_specular;
+	// Shadow ray
+	float col_distance_shadow;
+	vec3 col_normal_shadow = vec3(0.);
+	int mat_id_shadow = 0;
+
+	float shadow_exists = 1.;
+	if (dot(light_vec, object_normal) > 0.) {
+		bool intersection_exist = ray_intersection(object_point, light_vec, col_distance_shadow, col_normal_shadow, mat_id_shadow);
+		if (intersection_exist && col_distance_shadow < length(light.position - object_point)) {
+			if (abs(col_distance_shadow) > 1e-3) {
+				shadow_exists = 0.;
+			} else {
+				vec3 new_intersection = object_point + 1e-3 * light_vec;
+				intersection_exist = ray_intersection(new_intersection, light_vec, col_distance_shadow, col_normal_shadow, mat_id_shadow);
+				if (intersection_exist && col_distance_shadow < length(light.position - object_point)) {
+					shadow_exists = 0.;
+				}
+			} 
+		} 
+	}
+	
+
+	return (intensity_diffuse + intensity_specular) * shadow_exists;
 }
 
 /*
