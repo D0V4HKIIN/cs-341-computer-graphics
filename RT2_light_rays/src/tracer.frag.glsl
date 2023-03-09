@@ -361,6 +361,8 @@ bool ray_intersection(
 	return col_distance < MAX_RANGE;
 }
 
+#define FLOAT_COMPENSATION 1e-3
+
 /*
 	Return the color at an intersection point given a light and a material, exluding the contribution
 	of potential reflected rays.
@@ -415,14 +417,13 @@ vec3 lighting(
 	int mat_id_shadow = 0;
 
 	float shadow_exists = 1.;
-	float float_err_compensation = 1e-3;
 	if (dot(light_vec, object_normal) > 0.) {
 		bool intersection_exist = ray_intersection(object_point, light_vec, col_distance_shadow, col_normal_shadow, mat_id_shadow);
 		if (intersection_exist && col_distance_shadow < length(light.position - object_point)) {
-			if (abs(col_distance_shadow) > float_err_compensation) {
+			if (abs(col_distance_shadow) > FLOAT_COMPENSATION) {
 				shadow_exists = 0.;
 			} else {
-				vec3 new_intersection = object_point + float_err_compensation * light_vec;
+				vec3 new_intersection = object_point + FLOAT_COMPENSATION * light_vec;
 				intersection_exist = ray_intersection(new_intersection, light_vec, col_distance_shadow, col_normal_shadow, mat_id_shadow);
 				if (intersection_exist && col_distance_shadow < length(light.position - object_point)) {
 					shadow_exists = 0.;
@@ -492,7 +493,7 @@ vec3 render_light(vec3 ray_origin, vec3 ray_direction) {
 			}
 			#endif
 			pix_color += (1. - m.mirror) * reflection_weight * temp_pix_color;
-			ray_origin = ray_origin + ray_direction * (col_distance - 1e-1);
+			ray_origin = ray_origin + ray_direction * (col_distance - FLOAT_COMPENSATION);
 			ray_direction = reflect(ray_direction, col_normal);
 			reflection_weight *= m.mirror;
 		}else{
