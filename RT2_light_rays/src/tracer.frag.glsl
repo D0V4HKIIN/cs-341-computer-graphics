@@ -382,10 +382,10 @@ vec3 lighting(
 	float direction_diffuse = dot(object_normal, light_vec);
 	vec3 intensity_diffuse;
 
-	if (direction_diffuse < 0.) {
-		intensity_diffuse = vec3(0., 0., 0.);
-	} else {
+	if (direction_diffuse > 0.) {
 		intensity_diffuse = (mat.diffuse * mat.color) * light.color * dot(object_normal, light_vec);
+	} else {
+		intensity_diffuse = vec3(0.,0.,0.);
 	}
 
 	/** #TODO RT2.2: 
@@ -396,11 +396,11 @@ vec3 lighting(
 
 	vec3 intensity_specular;
 	#if SHADING_MODE == SHADING_MODE_PHONG
-	vec3 r = reflect(light_vec, object_normal);
-	if (dot(object_normal, light_vec) < 0. && dot(r, direction_to_camera) < 0.) {
+	vec3 r = 2. * object_normal * dot(object_normal, light_vec) - light_vec;
+	if (dot(object_normal, light_vec) < 0. || dot(r, direction_to_camera) < 0.) {
 		intensity_specular = vec3(0.,0.,0.);
 	} else {
-		intensity_specular = (mat.specular * mat.color) * light.color * pow(dot(r, normalize(direction_to_camera)), mat.shininess);
+		intensity_specular = (mat.specular * mat.color) * light.color * pow(dot(r, direction_to_camera), mat.shininess);
 	}
 	#endif
 
