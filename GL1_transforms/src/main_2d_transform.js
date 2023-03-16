@@ -221,13 +221,16 @@ async function main() {
 				* a red triangle spinning at [0.5, 0, 0]
 			You do not have to apply the mouse_offset to them.
 		*/
+		mat4.fromTranslation(mat_translation, [0.5, 0, 0]);
+		mat4.fromZRotation(mat_rotation, sim_time * 30 * deg_to_rad);
+		mat4_matmul_many(mat_transform, mat_rotation, mat_translation);
 		draw_triangle_with_transform({
-			mat_transform: mat4.fromZRotation([0, 0, 0], sim_time * 30 * deg_to_rad),
+			mat_transform: mat_transform,
 			color: color_green,
 		});
-
++ 		
 		draw_triangle_with_transform({
-			mat_transform: mat4.fromZRotation([0.5, 0, 0], sim_time * 30 * deg_to_rad),
+			mat_transform: mat_transform,
 			color: color_red,
 		});
 
