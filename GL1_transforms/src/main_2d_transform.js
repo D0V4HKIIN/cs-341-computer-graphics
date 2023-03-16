@@ -224,7 +224,7 @@ async function main() {
 		*/
 		mat4.fromTranslation(mat_translation, [0.5, 0, 0]);
 
-		mat4.fromZRotation(mat_rotation, sim_time * 30 * Math.PI / 180);
+		mat4.fromZRotation(mat_rotation, sim_time * 30 * deg_to_rad);
 
 		mat4_matmul_many(mat_transform_green, mat_rotation, mat_translation);
 
