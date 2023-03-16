@@ -111,18 +111,34 @@ export class SysOrbitalMovement {
 			mat4.fromScaling takes a 3D vector!
 		*/
 
-		//const M_orbit = mat4.create();
+		const M_orbit = mat4.create();
 
 		if(actor.orbit !== null) {
 			// Parent's translation
 			const parent = actors_by_name[actor.orbit]
 			const parent_translation_v = mat4.getTranslation([0, 0, 0], parent.mat_model_to_world)
+			// console.log(actor.name, actor.orbit, actors_by_name[actor.orbit].name, parent_translation_v)
 
 			// Orbit around the parent
-		} 
+			let parent_translation = mat4.fromTranslation(mat4.create(), parent_translation_v)
+			
+			let orbit_angle = sim_time * actor.orbit_speed + actor.orbit_phase
+			let orbit_rotation = mat4.fromZRotation(mat4.create(), orbit_angle)
+
+			let orbit_translation = mat4.fromTranslation(mat4.create(), [actor.orbit_radius, 0, 0])
+
+			mat4_matmul_many(M_orbit,parent_translation, orbit_rotation, orbit_translation)
+		}
+
+		let planet_angle = sim_time * actor.rotation_speed
+
+		let planet_rotation = mat4.fromZRotation(mat4.create(), planet_angle);
+		let planet_scale = mat4.fromScaling(mat4.create(), [actor.size, actor.size, actor.size])
+
+		let M_planet = mat4_matmul_many(mat4.create(), planet_rotation, planet_scale)
 		
 		// Store the combined transform in actor.mat_model_to_world
-		//mat4_matmul_many(actor.mat_model_to_world, ...);
+		mat4_matmul_many(actor.mat_model_to_world, M_orbit, M_planet);
 	}
 
 	simulate(scene_info) {
