@@ -191,9 +191,10 @@ async function main() {
 	const color_blue = [0.2, 0.5, 1.0]
 
 	// Matrices allocated for reuse, you do not have to use them
-	const mat_transform = mat4.create()
+	const mat_transform_green = mat4.create()
 	const mat_rotation = mat4.create()
 	const mat_translation = mat4.create()
+	const mat_transform_red = mat4.create()
 
 
 	// Function run to render a new frame
@@ -222,15 +223,20 @@ async function main() {
 			You do not have to apply the mouse_offset to them.
 		*/
 		mat4.fromTranslation(mat_translation, [0.5, 0, 0]);
-		mat4.fromZRotation(mat_rotation, sim_time * 30 * deg_to_rad);
-		mat4_matmul_many(mat_transform, mat_rotation, mat_translation);
+
+		mat4.fromZRotation(mat_rotation, sim_time * 30 * Math.PI / 180);
+
+		mat4_matmul_many(mat_transform_green, mat_rotation, mat_translation);
+
+		mat4_matmul_many(mat_transform_red, mat_translation, mat_rotation);
+
 		draw_triangle_with_transform({
-			mat_transform: mat_transform,
+			mat_transform: mat_transform_green,
 			color: color_green,
 		});
-+ 		
+
 		draw_triangle_with_transform({
-			mat_transform: mat_transform,
+			mat_transform: mat_transform_red,
 			color: color_red,
 		});
 
