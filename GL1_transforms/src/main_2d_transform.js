@@ -138,7 +138,7 @@ async function main() {
 
 		void main() {
 			// #TODO GL1.1.2.1 Edit the vertex shader to apply mat_transform to the vertex position.
-			gl_Position = vec4(position, 0, 1);
+			gl_Position = mat_transform * vec4(position, 0, 1);
 		}`,
 		
 		frag: /*glsl*/`
@@ -221,10 +221,16 @@ async function main() {
 				* a red triangle spinning at [0.5, 0, 0]
 			You do not have to apply the mouse_offset to them.
 		*/
-		//draw_triangle_with_transform({
-		//	mat_transform: mat_transform,
-		//	color: [0.5, 0.5, 0.5],
-		//});
+		let M_translation = mat4.fromTranslation(mat4.create(), [0.5, 0, 0]);
+
+		let M_rotation = mat4.fromZRotation(mat4.create(), sim_time * 30 * Math.PI / 180);
+
+		mat4_matmul_many(mat_transform, M_rotation, M_translation);
+
+		draw_triangle_with_transform({
+			mat_transform: mat_transform,
+			color: color_green,
+		});
 
 		//draw_triangle_with_transform({
 		//	mat_transform: mat_transform,
