@@ -8,6 +8,22 @@ import {deg_to_rad, mat4_to_string, vec_to_string, mat4_matmul_many} from "./icg
 
 
 async function main() {
+	/*
+	let M_translation = mat4.fromTranslation(mat4.create(), [0, 10, 0]);
+	console.log(M_translation.toString())
+
+	let M_rotation = mat4.fromZRotation(mat4.create(), 45 * Math.PI / 180);
+	console.log(M_rotation.toString())
+
+	let M_RT = mat4_matmul_many(mat4.create(), M_translation, M_rotation);
+	console.log(M_RT.toString())
+	let M_TR = mat4_matmul_many(mat4.create(), M_rotation, M_translation);
+	console.log(M_TR.toString())
+
+	console.log(mat4.getTranslation([0, 0, 0], M_RT))
+	console.log(mat4.getTranslation([0, 0, 0], M_TR))
+	*/
+
 	/* `const` in JS means the variable will not be bound to a new value, but the value can be modified (if its an object or array)
 		https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/const
 	*/
@@ -79,7 +95,7 @@ async function main() {
 		void main() {
 			// #TODO GL1.1.1.1 Edit the vertex shader to apply mouse_offset translation to the vertex position.
 			// We have to return a vec4, because homogenous coordinates are being used.
-			gl_Position = vec4(position, 0, 1);
+			gl_Position = vec4(position + mouse_offset, 0, 1);
 		}`,
 			
 		/* 
@@ -192,8 +208,8 @@ async function main() {
 		// #TODO GL1.1.1.2 Draw the blue triangle translated by mouse_offset
 		
 		draw_triangle_with_offset({
-			mouse_offset: [0, 0],
-			color: [0.5, 0.5, 0.5],
+			mouse_offset: mouse_offset,
+			color: color_blue,
 		});
 
 		/*
