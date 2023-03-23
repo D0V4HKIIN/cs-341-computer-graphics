@@ -10,7 +10,7 @@ export function create_scene_content() {
 		{
 			translation: [-2., -2., 0.],
 			scale: [1., 1., 1.],
-					
+
 			mesh: 'vase1.obj',
 
 			material: {
@@ -21,7 +21,7 @@ export function create_scene_content() {
 		{
 			translation: [-1., 0., 0.],
 			scale: [1., 1., 2.],
-					
+
 			mesh: 'vase1.obj',
 
 			material: {
@@ -32,7 +32,7 @@ export function create_scene_content() {
 		{
 			translation: [-2., 2., 0.],
 			scale: [1., 1., 0.65],
-					
+
 			mesh: 'vase1.obj',
 
 			material: {
@@ -43,7 +43,7 @@ export function create_scene_content() {
 		{
 			translation: [0., 0., -1.],
 			scale: [3., 3., 3.],
-					
+
 			mesh: 'table.obj',
 
 			material: {
@@ -54,7 +54,7 @@ export function create_scene_content() {
 		{
 			translation: [2., -1., 0.],
 			scale: [0.6, 0.6, 0.8],
-					
+
 			mesh: 'cup2.obj',
 
 			material: {
@@ -65,7 +65,7 @@ export function create_scene_content() {
 		{
 			translation: [2.5, 1., 0.],
 			scale: [0.6, 0.6, 0.8],
-					
+
 			mesh: 'cup2.obj',
 
 			material: {
@@ -77,7 +77,7 @@ export function create_scene_content() {
 		{
 			translation: [0., 0., -0.75],
 			scale: [4., 4., 4.],
-				
+
 			mesh: 'shadow_scene__terrain.obj',
 
 			material: {
@@ -88,7 +88,7 @@ export function create_scene_content() {
 		{
 			translation: [0., 0., -0.75],
 			scale: [-4., -4., 4.],
-				
+
 			mesh: 'shadow_scene__wheel.obj',
 
 			material: {
@@ -164,10 +164,10 @@ class SysRenderMeshes {
 			},
 			// Faces, as triplets of vertex indices
 			elements: regl.prop('mesh.faces'),
-	
+
 			// Uniforms: global data available to the shader
-			uniforms: this.pipeline_uniforms(regl),	
-	
+			uniforms: this.pipeline_uniforms(regl),
+
 			vert: this.get_resource_checked(`${shader_name}.vert.glsl`),
 			frag: this.get_resource_checked(`${shader_name}.frag.glsl`),
 		})
@@ -181,7 +181,7 @@ class SysRenderMeshes {
 	}
 
 	render(frame_info, scene_info) {
-		/* 
+		/*
 		We will collect all objects to draw with this pipeline into an array
 		and then run the pipeline on all of them.
 		This way the GPU does not need to change the active shader between objects.
@@ -198,21 +198,26 @@ class SysRenderMeshes {
 			// If we wanted to have a rotation too, we'd use mat4.fromRotationTranslationScale
 			mat4.fromScaling(actor.mat_model_to_world, actor.scale)
 			mat4.translate(actor.mat_model_to_world, actor.mat_model_to_world, actor.translation)
-			
+
 			const mat_model_view = mat4.create()
 			const mat_mvp = mat4.create()
 			const mat_normals_to_view = mat3.create()
 			mat3.identity(mat_normals_to_view)
 
-			/* #TODO GL2.2.2 
+			/* #TODO GL2.2.2
 				Calculate mat_mvp like in previous exercise
-				Calculate mat_normals_to_view to be equal to 
+				Calculate mat_normals_to_view to be equal to
 					inverse(transpose( mat model * mat view))
 			*/
 			//mat4_matmul_many(mat_model_view, ...)
 			//mat4_matmul_many(mat_mvp, ...)
-			// calculate mat_normals_to_view 
+			// calculate mat_normals_to_view
 
+			mat4_matmul_many(mat_model_view, mat_view, actor.mat_model_to_world)
+			mat4_matmul_many(mat_mvp, mat_projection, mat_view, actor.mat_model_to_world)
+
+			mat3.fromMat4(mat_normals_to_view, mat_model_view)
+			mat3.invert(mat_normals_to_view, mat3.transpose([0.,0.,0.], mat_normals_to_view))
 
 			entries_to_draw.push({
 				mesh: this.resources[actor.mesh],

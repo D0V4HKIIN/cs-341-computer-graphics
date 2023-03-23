@@ -10,6 +10,8 @@ attribute vec3 vertex_normal;
 */
 //varying ...
 
+varying vec3 vertex_color;
+
 // Global variables specified in "uniforms" entry of the pipeline
 uniform mat4 mat_mvp;
 uniform mat4 mat_model_view;
@@ -30,5 +32,24 @@ void main() {
 	Hint: Compute the vertex position, normal and light_position in eye space.
 	Hint: Write the final vertex position to gl_Position
 	*/
+	vec3 eye_vertex_position = (mat_model_view * vec4(vertex_position, 1.)).xyz;
+	vec3 eye_vertex_normal = normalize(mat_normals_to_view * vertex_normal);
+	vec3 light_vec = normalize(light_position - eye_vertex_position);
+
+	// Diffuse
+	float intensity_diffuse = dot(eye_vertex_normal, light_vec);
+	if (intensity_diffuse < 0.) {
+		intensity_diffuse = 0.;
+	}
+
+	vec3 direction_to_camera = -1. * eye_vertex_position;
+
+	// Specular
+	vec3 h = normalize(light_vec + direction_to_camera);
+	float intensity_specular =  pow(dot(eye_vertex_normal, h), material_shininess);
+
+	// add everything together
+	vertex_color = material_color * light_color * (material_ambient + intensity_diffuse + intensity_specular);
+
 	gl_Position = mat_mvp * vec4(vertex_position, 1);
 }
