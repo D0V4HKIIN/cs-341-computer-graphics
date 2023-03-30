@@ -4,7 +4,8 @@ precision highp float;
 //varying ...
 //varying ...
 varying vec2 v2f_uv;
-
+varying vec3 surface_normal;
+varying vec3 frag_position;
 
 uniform vec3 light_position; // light position in camera coordinates
 uniform vec3 light_color;
@@ -14,11 +15,14 @@ uniform sampler2D tex_color;
 void main() {
 
 	float material_shininess = 12.;
+	float material_ambient = 0.1;
 
 	/* #TODO GL3.1.1
 	Sample texture tex_color at UV coordinates and display the resulting color.
 	*/
 	vec3 material_color = vec3(v2f_uv, 0.);
+	vec3 texture_color = texture2D(tex_color, v2f_uv).xyz;
+	
 	
 	/*
 	#TODO GL3.3.1: Blinn-Phong with shadows and attenuation
@@ -49,6 +53,35 @@ void main() {
 
 	Make sure to normalize values which may have been affected by interpolation!
 	*/
-	vec3 color = light_color * material_color;
-	gl_FragColor = vec4(color, 1.); // output: RGBA in 0..1 range
+	//vec3 color = light_color * material_color;
+
+
+	// Calculate from scratch light and view vectors
+
+	vec3 light_vector = normalize(light_position - frag_position);
+	vec3 view_vector = normalize(reflect(light_vector, surface_normal));
+	float distance_light_frag = distance(light_position, frag_position);
+	float stored_distance = textureCube(cube_shadowmap, -1. * light_vector).r;
+	
+
+	// Diffuse
+	float intensity_diffuse = dot(surface_normal, light_vector);
+	if (intensity_diffuse <= 0.) {
+		intensity_diffuse = 0.;
+	}
+
+	// Specular
+	vec3 h = normalize(light_vector + view_vector);
+	float intensity_specular =  pow(dot(surface_normal, h), material_shininess);
+
+	vec3 color = vec3(0.,0.,0.);
+
+	// add everything together
+	// ambient component = material_color * light_color * material_ambient?
+	if (distance_light_frag <= 1.01 * stored_distance) {
+		color = material_color * light_color * (material_ambient + intensity_diffuse + intensity_specular) / distance_light_frag;
+	}
+
+	gl_FragColor = vec4(texture_color * color, 1.); // output: RGBA in 0..1 range
 }
+

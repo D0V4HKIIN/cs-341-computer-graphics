@@ -7,6 +7,8 @@ precision mediump float;
 */
 //varying ...
 //varying ...
+varying vec3 surface_normal;
+varying vec3 view_vector;
 
 uniform samplerCube cube_env_map;
 
@@ -18,5 +20,8 @@ void main()
 	Pass the resulting color as output.
 	*/
 	vec3 color = vec3(0., 0.5, 0.);
-	gl_FragColor = vec4(color, 1.); // output: RGBA in 0..1 range
+	vec3 direction_vec3 = reflect(-1. * view_vector, surface_normal);
+	vec4 result = textureCube(cube_env_map, direction_vec3);
+
+	gl_FragColor = vec4(result.xyz, 1.); // output: RGBA in 0..1 range
 }
