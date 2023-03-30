@@ -212,6 +212,9 @@ async function main() {
 		update_cam_transform(frame_info)
 	})
 
+	set_predef_view_1()
+	is_paused = false
+
 	/*---------------------------------------------------------------
 		Render loop
 	---------------------------------------------------------------*/
