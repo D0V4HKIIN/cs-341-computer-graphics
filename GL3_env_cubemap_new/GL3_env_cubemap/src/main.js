@@ -54,7 +54,7 @@ async function main() {
 	const debug_overlay = document.getElementById('debug-overlay')
 	const debug_text = document.getElementById('debug-text')
 	register_keyboard_action('h', () => debug_overlay.classList.toggle('hidden'))
-	
+
 	// Pause
 	let is_paused = false
 	register_keyboard_action('p', () => is_paused = !is_paused);
@@ -85,10 +85,10 @@ async function main() {
 
 		frame_info.sim_time = 1.
 		frame_info.cam_angle_z = -2.731681469282041
-		frame_info.cam_angle_y = 
+		frame_info.cam_angle_y =
 		-0.4785987755982989
 		frame_info.cam_distance_factor = 1.4693280768000003
-		
+
 		mat4.set(frame_info.mat_turntable, 0.3985278716916164, -0.42238331447052535, 0.8141055651092455, 0, 0.9171562219627312, 0.18353636962060468, -0.3537497216133721, 0, 0, 0.8876411080405088, 0.4605358436827886, 0, 0, 0, -22.039921152000005, 1)
 	}
 	register_keyboard_action('1', set_predef_view_1)
@@ -118,8 +118,8 @@ async function main() {
 		Scene and systems
 	---------------------------------------------------------------*/
 
-	// Resources and scene 
-	const resources = await load_resources(regl)	
+	// Resources and scene
+	const resources = await load_resources(regl)
 
 	const scenes = {
 		Reflections: create_scene_content_reflections(),
@@ -163,19 +163,30 @@ async function main() {
 	function update_cam_transform(frame_info) {
 		const {cam_angle_z, cam_angle_y, cam_distance_factor} = frame_info
 
-		/* TODO GL3.0
-		Copy turntable camera from GL2
+		/* TODO GL1.2.2
+		Calculate the world-to-camera transformation matrix for turntable camera.
+		The camera orbits the scene
+		* cam_distance_base * cam_distance_factor = distance of the camera from the (0, 0, 0) point
+		* cam_angle_z - camera ray's angle around the Z axis
+		* cam_angle_y - camera ray's angle around the Y axis
 		*/
 
 		// Example camera matrix, looking along forward-X, edit this
-		const look_at = mat4.lookAt(mat4.create(), 
-			[-5, 0, 0], // camera position in world coord
+		let r = cam_distance_base * cam_distance_factor; // dist to 0,0,0
+
+		// let translation = mat4.fromTranslation(mat4.create(), [r, 0, 0]);
+		let zrotation = mat4.fromZRotation(mat4.create(), cam_angle_z);
+		let yrotation = mat4.fromYRotation(mat4.create(), cam_angle_y);
+		let eye_rotation = mat4_matmul_many(mat4.create(), yrotation, zrotation)
+
+		const look_at = mat4.lookAt(mat4.create(),
+			[-r, 0, 0], // camera position in world coord
 			[0, 0, 0], // view target point
 			[0, 0, 1], // up vector
 		)
 		// Store the combined transform in mat_turntable
 		// frame_info.mat_turntable = A * B * ...
-		mat4_matmul_many(frame_info.mat_turntable, look_at) // edit this
+		mat4_matmul_many(frame_info.mat_turntable, look_at, eye_rotation) // edit this
 	}
 
 	update_cam_transform(frame_info)
@@ -224,7 +235,7 @@ async function main() {
 		prev_regl_time = frame.time
 
 		// Calculate view matrix, view centered on chosen planet
-		mat4.perspective(mat_projection, 
+		mat4.perspective(mat_projection,
 			deg_to_rad * 60, // fov y
 			frame.framebufferWidth / frame.framebufferHeight, // aspect ratio
 			0.01, // near

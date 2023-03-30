@@ -19,14 +19,14 @@ export function init_scene(regl, resources) {
 		uniforms: {
 			mat_mvp:     regl.prop('mat_mvp'),
 			light_color: regl.prop('ambient_light_color'),
-		},	
+		},
 
 		vert: resources.shader_ambient_vert,
 		frag: resources.shader_ambient_frag,
 
 		cull: {enable: false},
 	});
-	
+
 	function update_simulation(scene_info) {
 		scene_info.actors.forEach(actor => {
 			if (actor.animation_tick) {
@@ -80,7 +80,7 @@ export function init_scene(regl, resources) {
 	Construct textures for basic colors.
 */
 function textures_construct(regl, resources) {
-	
+
 	const make_texture_from_color = (color) => {
 		const c = vec3.scale([0, 0, 0], color, 255)
 
@@ -125,9 +125,9 @@ function meshes_construct(regl, resources) {
 		*/
 		vertex_tex_coords: [
 			[0, 0],
-			[1, 0],
-			[1, 1],
-			[0, 1],
+			[4, 0],
+			[4, 4],
+			[0, 4],
 		],
 		faces: [
 			[0, 1, 2],
@@ -149,14 +149,14 @@ export async function load_resources(regl) {
 	OR
 	* run chromium with CLI flag
 		"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" --allow-file-access-from-files index.html
-		
+
 	* edit config in firefox
 		security.fileuri.strict_origin_policy = false
 	*/
 
 	// Start downloads in parallel
 	const resource_promises = {}
-	
+
 	const textures_to_load = [
 		'outdoor_umbrellas_2k.webp',
 		'venice_sunrise_2k.webp',
@@ -172,6 +172,7 @@ export async function load_resources(regl) {
 	*/
 	const tex_load_options = {
 		// wrap: ...
+		wrap: 'repeat'
 	}
 	resource_promises[floor_tex_name] = load_texture(regl, `./textures/${floor_tex_name}`, tex_load_options)
 
@@ -180,7 +181,7 @@ export async function load_resources(regl) {
 		const texture_name = `cube_side_${cube_side_idx}.png`
 		resource_promises[texture_name] = load_image(`./textures/${texture_name}`)
 	}
-	
+
 
 	const shaders_to_load = [
 		'unshaded.vert.glsl', 'unshaded.frag.glsl',
@@ -220,7 +221,7 @@ export function create_scene_content_reflections() {
 		{
 			translation: [-1., 0., 1.5],
 			scale: [2., 2., 3.],
-					
+
 			mesh: 'vase_centered.obj',
 
 			material: {
@@ -231,7 +232,7 @@ export function create_scene_content_reflections() {
 		{
 			translation: [2., -1., 0.],
 			scale: [0.6, 0.6, 0.8],
-					
+
 			mesh: 'cup2.obj',
 
 			material: {
@@ -241,7 +242,7 @@ export function create_scene_content_reflections() {
 		{
 			translation: [2.5, 1., 0.],
 			scale: [0.6, 0.6, 0.8],
-					
+
 			mesh: 'cup2.obj',
 
 			material: {
@@ -252,7 +253,7 @@ export function create_scene_content_reflections() {
 		{
 			translation: [0., 0., -0.75],
 			scale: [-4., -4., 4.],
-				
+
 			mesh: 'shadow_scene__wheel.obj',
 
 			material: {
@@ -270,11 +271,11 @@ export function create_scene_content_reflections() {
 				texture: 'floor_tile.webp',
 			}
 		},
-		
+
 		{
 			translation: [0., 0., 0.],
 			scale: [100., 100., 100.],
-				
+
 			mesh: 'mesh_sphere',
 
 			material: {
@@ -333,12 +334,12 @@ export function create_scene_content_shadows() {
 			},
 		},
 
-		
+
 
 		{
 			translation: [-2., -2., 0.],
 			scale: [1., 1., 1.],
-					
+
 			mesh: 'vase1.obj',
 
 			material: {
@@ -349,7 +350,7 @@ export function create_scene_content_shadows() {
 		{
 			translation: [-1., 0., 1.],
 			scale: [1., 1., 2.],
-					
+
 			mesh: 'vase_centered.obj',
 
 			material: {
@@ -360,7 +361,7 @@ export function create_scene_content_shadows() {
 		// {
 		// 	translation: [-1., 0., 1.],
 		// 	scale: [2., 2., 3.],
-					
+
 		// 	mesh: 'vase_centered.obj',
 
 		// 	material: {
@@ -369,12 +370,12 @@ export function create_scene_content_shadows() {
 		// 	}
 		// },
 
-		
+
 
 		{
 			translation: [0., 0., -0.75],
 			scale: [4., 4., 4.],
-				
+
 			mesh: 'shadow_scene__terrain.obj',
 
 			material: {
@@ -384,7 +385,7 @@ export function create_scene_content_shadows() {
 		{
 			translation: [0., 0., -0.75],
 			scale: [-4., -4., 4.],
-				
+
 			mesh: 'shadow_scene__wheel.obj',
 
 			material: {

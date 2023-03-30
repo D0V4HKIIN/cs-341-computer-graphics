@@ -32,6 +32,6 @@ void main() {
 	//v2f_dir_to_camera = vec3(1, 0, 0); // TODO calculate
 	// transform normal to camera coordinates
 	//v2f_normal = normal; // TODO apply normal transformation
-	
-	gl_Position = vec4(vertex_position, 1);
+
+	gl_Position = mat_mvp * vec4(vertex_position, 1);
 }
