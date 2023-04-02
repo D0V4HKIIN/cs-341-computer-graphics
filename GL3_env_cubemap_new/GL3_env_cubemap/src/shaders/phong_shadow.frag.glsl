@@ -82,6 +82,6 @@ void main() {
 		color = texture_color * light_color * (material_ambient + intensity_diffuse + intensity_specular) / (distance_light_frag * distance_light_frag);
 	}
 
-	gl_FragColor = vec4(texture_color * color, 1.); // output: RGBA in 0..1 range
+	gl_FragColor = vec4(color, 1.); // output: RGBA in 0..1 range
 }
 
