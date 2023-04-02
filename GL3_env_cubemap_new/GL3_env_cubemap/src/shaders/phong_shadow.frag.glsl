@@ -59,7 +59,7 @@ void main() {
 	// Calculate from scratch light and view vectors
 
 	vec3 light_vector = normalize(light_position - frag_position);
-	vec3 view_vector = normalize(reflect(light_vector, surface_normal));
+	vec3 view_vector = normalize(surface_normal);
 	float distance_light_frag = distance(light_position, frag_position);
 	float stored_distance = textureCube(cube_shadowmap, -1. * light_vector).r;
 	
@@ -79,7 +79,7 @@ void main() {
 	// add everything together
 	// ambient component = material_color * light_color * material_ambient?
 	if (distance_light_frag <= 1.01 * stored_distance) {
-		color = material_color * light_color * (material_ambient + intensity_diffuse + intensity_specular) / distance_light_frag;
+		color = texture_color * light_color * (material_ambient + intensity_diffuse + intensity_specular) / (distance_light_frag * distance_light_frag);
 	}
 
 	gl_FragColor = vec4(texture_color * color, 1.); // output: RGBA in 0..1 range
