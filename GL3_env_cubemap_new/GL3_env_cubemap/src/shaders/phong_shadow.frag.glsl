@@ -15,12 +15,11 @@ uniform sampler2D tex_color;
 void main() {
 
 	float material_shininess = 12.;
-	float material_ambient = 0.1;
 
 	/* #TODO GL3.1.1
 	Sample texture tex_color at UV coordinates and display the resulting color.
 	*/
-	vec3 material_color = vec3(v2f_uv, 0.);
+	// vec3 material_color = vec3(v2f_uv, 0.);
 	vec3 texture_color = texture2D(tex_color, v2f_uv).xyz;
 	
 	
@@ -59,7 +58,7 @@ void main() {
 	// Calculate from scratch light and view vectors
 
 	vec3 light_vector = normalize(light_position - frag_position);
-	vec3 view_vector = normalize(surface_normal);
+	vec3 view_vector = normalize(frag_position);
 	float distance_light_frag = distance(light_position, frag_position);
 	float stored_distance = textureCube(cube_shadowmap, -1. * light_vector).r;
 	
@@ -72,16 +71,15 @@ void main() {
 
 	// Specular
 	vec3 h = normalize(light_vector + view_vector);
-	float intensity_specular =  pow(dot(surface_normal, h), material_shininess);
+	float intensity_specular =  pow(dot(h, surface_normal), material_shininess);
 
 	vec3 color = vec3(0.,0.,0.);
 
 	// add everything together
 	// ambient component = material_color * light_color * material_ambient?
 	if (distance_light_frag <= 1.01 * stored_distance) {
-		color = texture_color * light_color * (material_ambient + intensity_diffuse + intensity_specular) / (distance_light_frag * distance_light_frag);
+		color = texture_color * light_color * (intensity_diffuse + intensity_specular) / (distance_light_frag * distance_light_frag);
 	}
 
 	gl_FragColor = vec4(color, 1.); // output: RGBA in 0..1 range
 }
-
