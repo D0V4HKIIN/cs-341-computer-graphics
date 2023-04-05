@@ -86,6 +86,7 @@ void main() {
 		}
 	}
 
+	// vec3 color = light_color / dot(light_position - frag_position, light_position - frag_position); 
      
     // vec3 v = normalize(-frag_position); 
     // vec3 l = normalize(light_position - frag_position); 
@@ -106,8 +107,8 @@ void main() {
     //     } 
     // }     
  
-    // color = (color * (specular + diffuse)) * material_color; 
-//  gl_FragColor = vec4(color, 1.); // output: RGBA in 0..1 range 
+    // color = (color * (specular + diffuse)) * texture_color; 
+	//  gl_FragColor = vec4(color, 1.); // output: RGBA in 0..1 range 
 
 	gl_FragColor = vec4(color, 1.); // output: RGBA in 0..1 range
 }
