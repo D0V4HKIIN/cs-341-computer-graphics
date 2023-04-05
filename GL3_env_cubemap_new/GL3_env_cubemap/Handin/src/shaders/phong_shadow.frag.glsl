@@ -4,7 +4,7 @@ precision highp float;
 //varying ...
 //varying ...
 varying vec2 v2f_uv;
-varying vec3 surface_normal;
+varying vec3 surface_not_normal;
 varying vec3 frag_position;
 
 uniform vec3 light_position; // light position in camera coordinates
@@ -13,7 +13,6 @@ uniform samplerCube cube_shadowmap;
 uniform sampler2D tex_color;
 
 void main() {
-
 	float material_shininess = 12.;
 
 	/* #TODO GL3.1.1
@@ -21,7 +20,6 @@ void main() {
 	*/
 	// vec3 material_color = vec3(v2f_uv, 0.);
 	vec3 texture_color = texture2D(tex_color, v2f_uv).xyz;
-
 
 	/*
 	#TODO GL3.3.1: Blinn-Phong with shadows and attenuation
@@ -52,13 +50,11 @@ void main() {
 
 	Make sure to normalize values which may have been affected by interpolation!
 	*/
-	//vec3 color = light_color * material_color;
-
-
 	// Calculate from scratch light and view vectors
 
+	vec3 surface_normal = normalize(surface_not_normal);
 	vec3 light_vector = normalize(light_position - frag_position);
-	vec3 view_vector = -normalize(frag_position);
+	vec3 view_vector = normalize(-frag_position);
 	float distance_light_frag = distance(light_position, frag_position);
 	float stored_distance = textureCube(cube_shadowmap, -1. * light_vector).r;
 
@@ -71,9 +67,13 @@ void main() {
 
 	// Specular
 	vec3 h = normalize(light_vector + view_vector);
-	float intensity_specular =  pow(dot(h, surface_normal), material_shininess);
+	float specular_angle = dot(h, surface_normal);
+	float intensity_specular = pow(specular_angle, material_shininess);
+	if (specular_angle <= 0.) {
+		intensity_specular = 0.;
+	}
 
-	vec3 color = vec3(0.,0.,0.);
+	vec3 color = vec3(0.);
 
 	// add everything together
 	// ambient component = material_color * light_color * material_ambient?
