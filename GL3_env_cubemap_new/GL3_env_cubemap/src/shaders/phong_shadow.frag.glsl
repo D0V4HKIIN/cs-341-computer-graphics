@@ -58,7 +58,7 @@ void main() {
 	// Calculate from scratch light and view vectors
 
 	vec3 light_vector = normalize(light_position - frag_position);
-	vec3 view_vector = -normalize(frag_position);
+	vec3 view_vector = normalize(-frag_position);
 	float distance_light_frag = distance(light_position, frag_position);
 	float stored_distance = textureCube(cube_shadowmap, -1. * light_vector).r;
 
@@ -71,15 +71,43 @@ void main() {
 
 	// Specular
 	vec3 h = normalize(light_vector + view_vector);
-	float intensity_specular =  pow(dot(h, surface_normal), material_shininess);
+	float intensity_specular = pow(dot(h, surface_normal), material_shininess);
+	if (dot(h, surface_normal) <= 0.) {
+		intensity_specular = 0.;
+	}
 
 	vec3 color = vec3(0.,0.,0.);
 
 	// add everything together
 	// ambient component = material_color * light_color * material_ambient?
 	if (distance_light_frag <= 1.01 * stored_distance) {
-		color = texture_color * light_color * (intensity_diffuse + intensity_specular) / (distance_light_frag * distance_light_frag);
+        if (dot(surface_normal, light_vector) > 0.) { 
+			color = texture_color * light_color * (intensity_diffuse + intensity_specular) / (distance_light_frag * distance_light_frag);
+		}
 	}
+
+     
+    // vec3 v = normalize(-frag_position); 
+    // vec3 l = normalize(light_position - frag_position); 
+    // vec3 h = normalize(l + v); 
+ 
+    // float diffuse = (0.); 
+    // float specular = (0.); 
+ 
+    // float shadow_value = textureCube(cube_shadowmap, -l).r; 
+ 
+    // if (shadow_value * 1.01 >= length(light_position - frag_position)) { 
+    //     if (dot(normalize(surface_normal), l) > 0.) { 
+    //         diffuse = dot(normalize(surface_normal), l); 
+ 
+    //         if (dot(h, surface_normal) > 0.) { 
+    //             specular = pow(dot(h, normalize(surface_normal)), material_shininess); 
+    //         } 
+    //     } 
+    // }     
+ 
+    // color = (color * (specular + diffuse)) * material_color; 
+//  gl_FragColor = vec4(color, 1.); // output: RGBA in 0..1 range 
 
 	gl_FragColor = vec4(color, 1.); // output: RGBA in 0..1 range
 }
