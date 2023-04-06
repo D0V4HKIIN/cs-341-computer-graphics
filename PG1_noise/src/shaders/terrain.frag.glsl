@@ -6,6 +6,9 @@ varying float v2f_height;
 //varying ...
 //varying ...
 //varying ...
+varying vec3 surface_normal;
+varying vec3 view_vector;
+varying vec3 light_vector;
 
 
 const vec3  light_color = vec3(1.0, 0.941, 0.898);
@@ -23,7 +26,7 @@ void main()
 	/* #TODO PG1.6.1
 	Compute the terrain color ("material") and shininess based on the height as
 	described in the handout. `v2f_height` may be useful.
-	
+
 	Water:
 			color = terrain_color_water
 			shininess = 30.
@@ -31,14 +34,36 @@ void main()
 			color = interpolate between terrain_color_grass and terrain_color_mountain, weight is (height - terrain_water_level)*2
 	 		shininess = 2.
 	*/
+	//float s = perlin_fbm(point);
 	vec3 material_color = terrain_color_grass;
-	float shininess = 0.5;
+	float shininess = 2.;
+
+	if (height < terrain_water_level) {
+		material_color = terrain_color_water;
+		shininess = 30.;
+	} else {
+		material_color = mix(terrain_color_grass, terrain_color_mountain, (height - terrain_water_level)*2.);
+	}
+
 
 	/* #TODO PG1.6.1: apply the Blinn-Phong lighting model
     	Implement the Phong shading model by using the passed variables and write the resulting color to `color`.
     	`material_color` should be used as material parameter for ambient, diffuse and specular lighting.
     	Hints:
 	*/
-	vec3 color = material_color * light_color;
+	//vec3 color = material_color * light_color;
+
+	// Diffuse
+	float intensity_diffuse = dot(surface_normal, light_vector);
+	if (intensity_diffuse <= 0.) {
+		intensity_diffuse = 0.;
+	}
+
+	// Specular
+	vec3 h = normalize(light_vector + view_vector);
+	float intensity_specular =  pow(dot(surface_normal, h), shininess);
+
+	// add everything together
+	vec3 color = material_color * light_color * (ambient + intensity_diffuse + intensity_specular);
 	gl_FragColor = vec4(color, 1.); // output: RGBA in 0..1 range
 }

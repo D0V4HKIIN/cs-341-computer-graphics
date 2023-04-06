@@ -56,7 +56,7 @@ function terrain_build_mesh(height_map) {
 			])
 
 			/* #TODO PG1.6.1
-			Generate the displaced terrain vertex corresponding to integer grid location (gx, gy). 
+			Generate the displaced terrain vertex corresponding to integer grid location (gx, gy).
 			The height (Z coordinate) of this vertex is determined by height_map.
 			If the point falls below WATER_LEVEL:
 			* it should be clamped back to WATER_LEVEL.
@@ -64,7 +64,12 @@ function terrain_build_mesh(height_map) {
 
 			The XY coordinates are calculated so that the full grid covers the square [-0.5, 0.5]^2 in the XY plane.
 			*/
-			vertices[idx] = [0, 0, 0]
+			if (elevation >= WATER_LEVEL) {
+				vertices[idx] = [gx / grid_width - 0.5, gy / grid_height - 0.5, elevation]
+			} else {
+				vertices[idx] = [gx / grid_width - 0.5, gy / grid_height - 0.5, WATER_LEVEL]
+				normals[idx] = [0, 0, 1]
+			}
 		}
 	}
 
@@ -74,8 +79,13 @@ function terrain_build_mesh(height_map) {
 			Triangulate the grid cell whose lower lefthand corner is grid index (gx, gy).
 			You will need to create two triangles to fill each square.
 			*/
+			let v1 = xy_to_v_index(gx, gy)
+			let v2 = xy_to_v_index(gx + 1, gy)
+			let v3 = xy_to_v_index(gx, gy + 1)
+			let v4 = xy_to_v_index(gx + 1, gy + 1)
 
 			// faces.push([v1, v2, v3]) // adds a triangle on vertex indices v1, v2, v3
+			faces.push([v1, v2, v3], [v2, v3, v4])
 		}
 	}
 
@@ -121,16 +131,16 @@ export function init_terrain(regl, resources, height_map_buffer) {
 		draw({mat_projection, mat_view, light_position_cam}) {
 			mat4_matmul_many(this.mat_model_view, mat_view, this.mat_model_to_world)
 			mat4_matmul_many(this.mat_mvp, mat_projection, this.mat_model_view)
-	
+
 			mat3.fromMat4(this.mat_normals, this.mat_model_view)
 			mat3.transpose(this.mat_normals, this.mat_normals)
 			mat3.invert(this.mat_normals, this.mat_normals)
-	
+
 			pipeline_draw_terrain({
 				mat_mvp: this.mat_mvp,
 				mat_model_view: this.mat_model_view,
 				mat_normals: this.mat_normals,
-		
+
 				light_position: light_position_cam,
 			})
 		}
