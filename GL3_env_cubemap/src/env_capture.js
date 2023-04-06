@@ -7,7 +7,7 @@ import {deg_to_rad, mat4_to_string, vec_to_string, mat4_matmul_many} from "./icg
 Captures the environment into a cubemap.
 */
 export class EnvironmentCapture {
-	
+
 	visualization_color_factor = 1.0
 
 	constructor(regl, resources) {
@@ -19,7 +19,7 @@ export class EnvironmentCapture {
 			colorFormat: 'rgba', // GLES 2.0 doesn't support single channel textures : (
 			colorType: 'float',
 		})
-	
+
 		const faces = [0, 1, 2, 3, 4, 5].map(side_idx => this.get_resource_checked(`cube_side_${side_idx}.png`))
 
 		this.annotation_cubemap = regl.cube(...faces)
@@ -27,7 +27,7 @@ export class EnvironmentCapture {
 		this.init_capture(regl)
 		this.init_visualization(regl)
 	}
-	
+
 	get_resource_checked(resource_name) {
 		const shader_text = this.resources[resource_name]
 		if (shader_text === undefined) {
@@ -55,10 +55,10 @@ export class EnvironmentCapture {
 				cubemap_annotation: this.annotation_cubemap,
 				preview_rect_scale: ({viewportWidth, viewportHeight}) => {
 					const aspect_ratio = viewportWidth / viewportHeight;
-	
+
 					const width_in_viewport_units = 0.8;
 					const heigh_in_viewport_units = 0.4 * aspect_ratio;
-	
+
 					return [
 						width_in_viewport_units / 3.,
 						heigh_in_viewport_units / 2.,
@@ -83,7 +83,8 @@ export class EnvironmentCapture {
 			Note: this is the same for all point lights/cube faces!
 		*/
 		// please use mat4.perspective(mat4.create(), fovy, aspect, near, far);
-		const cube_camera_projection = mat4.create(); 
+		this.cube_camera_projection = mat4.create();
+		mat4.perspective(this.cube_camera_projection, 90 * deg_to_rad, 1, 0.1, 200)
 
 		this.run_with_output_framebuffer = regl({
 			framebuffer: regl.prop('out_buffer'),
@@ -108,29 +109,29 @@ export class EnvironmentCapture {
 	*/
 
 	static CUBE_FACE_UP = [
+		[0, -1, 0],
+		[0, -1, 0],
 		[0, 0, 1],
-		[0, 0, 1],
-		[0, 0, 1],
-		[0, 0, 1],
-		[0, 0, 1],
-		[0, 0, 1],
+		[0, 0, -1],
+		[0, -1, 0],
+		[0, -1, 0],
 	]
 
 	cube_camera_view(side_idx, center, mat_view_camera) {
-		
+
 		const center_position_view = vec3.transformMat4([0., 0., 0.], center, mat_view_camera)
 
 		const dir = this.constructor.CUBE_FACE_DIR[side_idx]
 		const up = this.constructor.CUBE_FACE_UP[side_idx]
 
 		const target = vec3.add(vec3.create(), center_position_view, dir);
-		return mat4.multiply(mat4.create(), 
-			mat4.lookAt(mat4.create(), center_position_view, target, up), 
+		return mat4.multiply(mat4.create(),
+			mat4.lookAt(mat4.create(), center_position_view, target, up),
 			mat_view_camera,
 		)
 	}
 
-	
+
 
 	/*
 	Capture scene into a cube map:
@@ -140,7 +141,7 @@ export class EnvironmentCapture {
 		- scene_render_func: function, the function to render the rest of the scene
 	*/
 	capture_scene_cubemap(frame_info, scene_info, capture_center, scene_render_func) {
-	
+
 		// const actors = scene_info.actors
 		const scene_mat_view = frame_info.mat_view
 
@@ -168,7 +169,7 @@ export class EnvironmentCapture {
 				})
 
 				scene_render_func(frame_info_with_cubemap, scene_info)
-			})	
+			})
 		}
 	}
 }
